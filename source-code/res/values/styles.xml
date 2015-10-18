@@ -2,13 +2,13 @@
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
+            backward-compatibility can go here.
         -->
     </style>
 
@@ -18,13 +18,10 @@
     </style>
 
     <style name="Activity" parent="AppBaseTheme">
-        <item name="android:background">@color/home_background</item>
-
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
     <style name="Activity.Home" parent="Activity">
-        <item name="android:background">@color/holo_primary_light</item>
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
