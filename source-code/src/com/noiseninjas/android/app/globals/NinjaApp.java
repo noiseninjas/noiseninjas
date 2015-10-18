@@ -12,7 +12,17 @@ import android.widget.Toast;
  *
  */
 public class NinjaApp extends Application {
-
+    /**
+     * !! Sample request !! 
+     * 
+     * https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=28.
+     * 6355662,77.361751&radius=500&type=school|hospital|cemetry|mosque|hindu_temple|
+     * |church|university|zoo|doctor&key=AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o
+     */
+    
+    /**
+     * 
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -22,10 +32,12 @@ public class NinjaApp extends Application {
     public void onTerminate() {
         super.onTerminate();
     }
-    public static void showGenericToast(Context context,String message){
-        Toast.makeText(context,message , Toast.LENGTH_SHORT).show();
+
+    public static void showGenericToast(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
-   public static NinjaApp getApp(Context context){
-       return (NinjaApp)context.getApplicationContext();
-   }
+
+    public static NinjaApp getApp(Context context) {
+        return (NinjaApp) context.getApplicationContext();
+    }
 }
