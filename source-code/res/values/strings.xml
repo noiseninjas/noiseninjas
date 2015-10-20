@@ -2,9 +2,11 @@
 <resources>
 
     <string name="app_name">NoiseNinjas</string>
-    <string name="title_activity_home">Noise Ninjas</string>
+    <string name="title_activity_home">Ninjas</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="action_hardcode1">R</string>
+    <string name="action_hardcode2">G</string>
     <string name="waiting_for_location">Waiting for current location</string>
-    
+
 </resources>

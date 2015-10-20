@@ -6,10 +6,50 @@
     android:background="?attr/colorPrimary"
     tools:context="com.noiseninjas.android.app.ui.activity.Home" >
 
+    <include
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        layout="@layout/toolbar"
+        android:background="?attr/actionBarItemBackground"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/rlAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:padding="15dp" >
+
+        <TextView
+            android:id="@+id/txtRed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Red"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/txtGreen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/txtRed"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Green"
+            android:textSize="14dp" />
+    </RelativeLayout>
+
     <FrameLayout
         android:id="@+id/flMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:layout_below="@id/rlAction" >
     </FrameLayout>
 
     <FrameLayout
@@ -25,15 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/title_activity_home"
-            android:src="@drawable/red_light" />
+            android:contentDescription="@string/title_activity_home" />
     </FrameLayout>
-
-    <include
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        layout="@layout/toolbar" />
 
 </RelativeLayout>

@@ -1,5 +1,8 @@
 package com.noiseninjas.android.app.ui.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -14,6 +17,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
@@ -21,12 +25,15 @@ import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.noiseninjas.android.app.R;
 import com.noiseninjas.android.app.globals.NinjaApp;
 
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
+import android.graphics.drawable.AnimationDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -35,8 +42,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageView;
 
 public class Home extends BaseActivity {
+    private static class TempPlace {
+        private String name;
+        private double latitude;
+        private double longitude;
+
+        public TempPlace(String name, double latitude, double longitude) {
+            super();
+            this.name = name;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+    }
+
     public static final String SERVER_PLACES_API_KEY = "AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o";
     private static final int REQUEST_CHECK_LOCATION_SETTINGS = 101;
     private SupportMapFragment mMapFragment = null;
@@ -48,13 +70,30 @@ public class Home extends BaseActivity {
     private boolean isGoogleApiConnected = false;
     private boolean isRequestingLocationUpdates = false;
     private Toolbar mToolbar = null;
+    private ImageView mImgLevel = null;
+    private AnimationDrawable mAnimZone = null;
+
+    private ArrayList<TempPlace> listZones = new ArrayList<Home.TempPlace>();
+    private LatLng mLocationBusyArea = new LatLng(28.6355662, 77.361751);
+    private LatLng mLocationRemoteArea = new LatLng(23.7998507,85.4321927);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
+        generateHardCodeData();
         initViews();
         buildGoogleApiClient();
+
+    }
+
+    private void generateHardCodeData() {
+        TempPlace school = new TempPlace("Vivekanand Global School", 28.633805, 77.35954);
+        TempPlace hospital = new TempPlace("Indirapuram Public Hospital", 28.639544, 77.360691);
+        TempPlace currentLocation = new TempPlace("Current Location", mLocationBusyArea.latitude, mLocationBusyArea.longitude);
+        listZones.add(school);
+        listZones.add(hospital);
+        listZones.add(currentLocation);
     }
 
     @Override
@@ -78,6 +117,11 @@ public class Home extends BaseActivity {
     private void initViews() {
         setupMapViews();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mImgLevel = (ImageView) findViewById(R.id.imgLevel);
+        mImgLevel.setVisibility(View.INVISIBLE);
+        findViewById(R.id.txtRed).setOnClickListener(mOnclickListener);
+        findViewById(R.id.txtGreen).setOnClickListener(mOnclickListener);
+
         initActionBar();
     }
 
@@ -88,7 +132,8 @@ public class Home extends BaseActivity {
 
     private void setUpToolbar() {
         if (mToolbar != null) {
-            setSupportActionBar(mToolbar);
+//            setSupportActionBar(mToolbar);
+//           getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
     }
@@ -96,10 +141,10 @@ public class Home extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        // getMenuInflater().inflate(R.menu.home, menu);
-        return false;
+        getMenuInflater().inflate(R.menu.home, menu);
+        return true;
     }
-
+    
     private void setupMapViews() {
         mMapFragment = SupportMapFragment.newInstance(getMapOptions());
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -169,7 +214,51 @@ public class Home extends BaseActivity {
             mGoogleMap.addMarker(mCurrentLocationMarker);
             mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 18.0f), 1000, null);
         }
+    }
 
+    private void updateRedZoneOnMap() {
+        List<Marker> mEventsMarker = new ArrayList<Marker>();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        int padding = 100; // offset from edges of the map in pixels
+        mGoogleMap.clear();
+        mEventsMarker.clear();
+        for (TempPlace places : listZones) {
+            LatLng location = new LatLng(places.latitude, places.longitude);
+            MarkerOptions markerOption = new MarkerOptions().position(location).title(places.name);
+            Marker newMarker = mGoogleMap.addMarker(markerOption);
+            mEventsMarker.add(newMarker);
+            builder.include(newMarker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mGoogleMap.animateCamera(cu, 1000, null);
+        enableRedZoneInterface();
+    }
+
+    private void enableRedZoneInterface() {
+        mImgLevel.setVisibility(View.VISIBLE);
+        mImgLevel.setBackgroundResource(R.drawable.anim_red);
+        mAnimZone = (AnimationDrawable) mImgLevel.getBackground();
+        mAnimZone.start();
+    }
+
+    private void enableGreenZoneInterface() {
+        mImgLevel.setVisibility(View.VISIBLE);
+        mImgLevel.setBackgroundResource(R.drawable.anim_green);
+        mAnimZone = (AnimationDrawable) mImgLevel.getBackground();
+        mAnimZone.start();
+    }
+
+    private void updateGreenZoneOnMap() {
+        List<Marker> mEventsMarker = new ArrayList<Marker>();
+        mGoogleMap.clear();
+        mEventsMarker.clear();
+        LatLng clickedLocation = new LatLng(mLocationRemoteArea.latitude, mLocationRemoteArea.longitude);
+        mGoogleMap.clear();
+        mCurrentLocationMarker = new MarkerOptions().position(clickedLocation).title("Current Location");
+        mGoogleMap.addMarker(mCurrentLocationMarker);
+        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 14.0f), 1000, null);
+        enableGreenZoneInterface();
     }
 
     private ResultCallback<LocationSettingsResult> mLocationResultCallback = new ResultCallback<LocationSettingsResult>() {
@@ -220,6 +309,14 @@ public class Home extends BaseActivity {
         @Override
         public void onClick(View clickedView) {
             switch (clickedView.getId()) {
+                case R.id.txtGreen :{
+                    updateGreenZoneOnMap();
+                }
+                break ;
+                case R.id.txtRed :{
+                    updateRedZoneOnMap();
+                }
+                break ;
                 default:
                     break;
             }
@@ -303,12 +400,26 @@ public class Home extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        boolean result = false;
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_hardcord1: {
+                result = true;
+                updateRedZoneOnMap();
+            }
+                break;
+            case R.id.action_hardcord2: {
+                result = true;
+                updateGreenZoneOnMap();
+            }
+                break;
+            default: {
+                result = super.onOptionsItemSelected(item);
+                ;
+            }
+                break;
         }
-        return super.onOptionsItemSelected(item);
+        return result;
     }
 
 }
