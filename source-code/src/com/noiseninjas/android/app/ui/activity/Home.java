@@ -29,12 +29,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.noiseninjas.android.app.R;
+import com.noiseninjas.android.app.engine.NoisePlace;
+import com.noiseninjas.android.app.engine.PlaceEngine;
 import com.noiseninjas.android.app.globals.NinjaApp;
 
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.graphics.drawable.AnimationDrawable;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
@@ -80,11 +83,13 @@ public class Home extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.home);
         generateHardCodeData();
         initViews();
         buildGoogleApiClient();
-
+        new Test().execute();
+        
     }
 
     private void generateHardCodeData() {
@@ -422,5 +427,19 @@ public class Home extends BaseActivity {
         }
         return result;
     }
+    
+    private class Test extends AsyncTask<Void, Void, Void>{
 
+        /* (non-Javadoc)
+         * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+         */
+        @Override
+        protected Void doInBackground(Void... params) {
+            LatLng testLocation = new LatLng(28.6355662, 77.361751);
+            List<NoisePlace> results = PlaceEngine.getPlacesAt(testLocation);
+            return null;
+        }
+        
+    }
+    
 }

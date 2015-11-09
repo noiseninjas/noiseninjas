@@ -5,11 +5,14 @@ package com.noiseninjas.android.app.engine;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * @author vishal gaurav
  *
  */
-public class NoisePlace {
+public class NoisePlace implements Parcelable {
 
     private String placeId;
     private String name;
@@ -25,7 +28,15 @@ public class NoisePlace {
         this.placeType = placeType;
         this.intensity = intensity;
     }
-
+    
+    private NoisePlace(Parcel parcel){
+        placeId = parcel.readString();
+        name = parcel.readString();
+        location = (LatLng) parcel.readValue(LatLng.class.getClassLoader());
+        placeType = parcel.readString();
+        intensity = (PlaceIntesity) PlaceIntesity.getIntensityFromLevel(parcel.readInt());
+    }
+    
     /**
      * @return the placeId
      */
@@ -101,4 +112,42 @@ public class NoisePlace {
         this.intensity = intensity;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return getName() + " " + getPlaceType();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(placeId);
+        dest.writeString(name);
+        dest.writeValue(location);
+        dest.writeString(placeType);
+        dest.writeInt(intensity.getLevel());
+        
+    }
+
+    public static final Parcelable.Creator<NoisePlace> CREATOR = new Parcelable.Creator<NoisePlace>() {
+
+        @Override
+        public NoisePlace createFromParcel(Parcel source) {
+           
+            return new NoisePlace(source);
+        }
+
+        @Override
+        public NoisePlace[] newArray(int size) {
+            return new NoisePlace[size];
+        } 
+        
+        
+    };
 }
