@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class PlacesMap {
     
     private volatile static Map<String, PlaceIntesity> PLACES_MAP = null;
+    
     public static final String TYPE_HOSPITAL = "hospital" ;
     public static final String TYPE_DOCTOR = "doctor" ;
     public static final String TYPE_SCHOOL = "school" ;
@@ -22,7 +23,8 @@ public final class PlacesMap {
     public static final String TYPE_TEMPLE = "hindu_temple" ;
     public static final String TYPE_ZOO = "zoo" ;
     public static final String TYPE_LIBRARY = "library" ;
-    
+    public static final String TYPE_NONE = "none" ;
+
     public static final String[] ALL_PLACES_TYPES = {TYPE_HOSPITAL, 
                                                      TYPE_DOCTOR, 
                                                      TYPE_SCHOOL,
@@ -51,7 +53,7 @@ public final class PlacesMap {
         
     }
     private static void initializeMapIfNecessary(){
-        if(PLACES_MAP != null){
+        if(PLACES_MAP == null){
             synchronized (PlacesMap.class) {
                 PLACES_MAP = new ConcurrentHashMap<String, PlaceIntesity>();
                 addFiltersToMap();
@@ -68,6 +70,8 @@ public final class PlacesMap {
        PLACES_MAP.put(TYPE_TEMPLE, PlaceIntesity.LOW);
        PLACES_MAP.put(TYPE_ZOO, PlaceIntesity.MEDIUM);
        PLACES_MAP.put(TYPE_LIBRARY, PlaceIntesity.HIGH);
+       PLACES_MAP.put(TYPE_NONE, PlaceIntesity.NONE);
+
     }
     public static PlaceIntesity getPlaceType(String placeString){
         PlaceIntesity placeType = PlaceIntesity.NONE ;
@@ -77,4 +81,6 @@ public final class PlacesMap {
         }
         return placeType ;
     }
+    
+    
 }
