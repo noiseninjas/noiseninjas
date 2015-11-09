@@ -212,14 +212,14 @@ public class Home extends BaseActivity {
             mGoogleMap.clear();
             mCurrentLocationMarker = new MarkerOptions().position(clickedLocation).title("Current Location");
             mGoogleMap.addMarker(mCurrentLocationMarker);
-            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 18.0f), 1000, null);
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 14.0f), 1000, null);
         }
     }
 
     private void updateRedZoneOnMap() {
         List<Marker> mEventsMarker = new ArrayList<Marker>();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        int padding = 100; // offset from edges of the map in pixels
+        int padding = 150; // offset from edges of the map in pixels
         mGoogleMap.clear();
         mEventsMarker.clear();
         for (TempPlace places : listZones) {
@@ -301,6 +301,7 @@ public class Home extends BaseActivity {
         public void onLocationChanged(Location changedLocation) {
             mCurrentLocation = changedLocation;
             updateCurrentLocationOnMap();
+            stopRequestingLocationUpdates();
         }
     };
 

@@ -15,10 +15,10 @@ public class NinjaApp extends Application {
     /**
      * !! Sample request !! 
      * 
-     * https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=28.
-     * 6355662,77.361751&radius=500&type=school|hospital|cemetry|mosque|hindu_temple|
-     * |church|university|zoo|doctor&key=AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o
+     * https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o&location=28.
+     6355662,77.361751&radius=500&type=school|hospital|cemetry|mosque|hindu_temple||church|university|zoo|doctor
      */
+    
     
     /**
      * 
