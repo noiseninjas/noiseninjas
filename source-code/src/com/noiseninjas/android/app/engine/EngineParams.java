@@ -31,7 +31,7 @@ public final class EngineParams {
     public static final int RADIUS_DEFAULT = 500; // int meters
     
     public static final String getApiKey(){
-        return "AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o";
+        return "AIzaSyBQcbQbmf8C0BOmY3bvj6qBxiZ3fuc7eRg";
     }
     public static final int getRadius(){
         // creating method do that we can get it from prefs also. not in current scope now

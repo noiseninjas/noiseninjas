@@ -8,5 +8,8 @@
     <string name="action_hardcode1">R</string>
     <string name="action_hardcode2">G</string>
     <string name="waiting_for_location">Waiting for current location</string>
-
+    <string name="improper_query">Improper Query</string>
+    <string name="no_location_input">Improper Query</string>
+    <string name="current_location">Current Location</string>
+    
 </resources>

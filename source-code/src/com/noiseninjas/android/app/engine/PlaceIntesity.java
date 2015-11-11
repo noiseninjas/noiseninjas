@@ -3,8 +3,6 @@
  */
 package com.noiseninjas.android.app.engine;
 
-import android.os.Parcelable;
-
 /**
  * @author Vishal Gaurav <br/>
  *         constants to be used in place filtering

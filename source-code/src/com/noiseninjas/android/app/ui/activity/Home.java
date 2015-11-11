@@ -31,7 +31,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.noiseninjas.android.app.R;
 import com.noiseninjas.android.app.engine.NoisePlace;
 import com.noiseninjas.android.app.engine.PlaceEngine;
+import com.noiseninjas.android.app.engine.PlaceIntesity;
+import com.noiseninjas.android.app.engine.PlaceType;
 import com.noiseninjas.android.app.globals.NinjaApp;
+import com.noiseninjas.android.app.service.PlacesService;
 
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
@@ -39,8 +42,11 @@ import android.graphics.drawable.AnimationDrawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,20 +54,16 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 public class Home extends BaseActivity {
-    private static class TempPlace {
-        private String name;
-        private double latitude;
-        private double longitude;
-
-        public TempPlace(String name, double latitude, double longitude) {
-            super();
-            this.name = name;
-            this.latitude = latitude;
-            this.longitude = longitude;
-        }
-
-    }
-
+    /*
+     * private static class TempPlace { private String name; private double
+     * latitude; private double longitude;
+     * 
+     * public TempPlace(String name, double latitude, double longitude) {
+     * super(); this.name = name; this.latitude = latitude; this.longitude =
+     * longitude; }
+     * 
+     * }
+     */
     public static final String SERVER_PLACES_API_KEY = "AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o";
     private static final int REQUEST_CHECK_LOCATION_SETTINGS = 101;
     private SupportMapFragment mMapFragment = null;
@@ -75,31 +77,29 @@ public class Home extends BaseActivity {
     private Toolbar mToolbar = null;
     private ImageView mImgLevel = null;
     private AnimationDrawable mAnimZone = null;
-
-    private ArrayList<TempPlace> listZones = new ArrayList<Home.TempPlace>();
+    public static final char a = 'a';
+    private ArrayList<NoisePlace> listPlaces = new ArrayList<NoisePlace>();
+    private PlaceIntesity mCurrentIntentsity = PlaceIntesity.NONE;
     private LatLng mLocationBusyArea = new LatLng(28.6355662, 77.361751);
     private LatLng mLocationRemoteArea = new LatLng(23.7998507,85.4321927);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         setContentView(R.layout.home);
-        generateHardCodeData();
         initViews();
         buildGoogleApiClient();
-        new Test().execute();
         
     }
 
-    private void generateHardCodeData() {
-        TempPlace school = new TempPlace("Vivekanand Global School", 28.633805, 77.35954);
-        TempPlace hospital = new TempPlace("Indirapuram Public Hospital", 28.639544, 77.360691);
-        TempPlace currentLocation = new TempPlace("Current Location", mLocationBusyArea.latitude, mLocationBusyArea.longitude);
-        listZones.add(school);
-        listZones.add(hospital);
-        listZones.add(currentLocation);
-    }
+//    private void generateHardCodeData() {
+//        TempPlace school = new TempPlace("Vivekanand Global School", 28.633805, 77.35954);
+//        TempPlace hospital = new TempPlace("Indirapuram Public Hospital", 28.639544, 77.360691);
+//        TempPlace currentLocation = new TempPlace("Current Location", mLocationBusyArea.latitude, mLocationBusyArea.longitude);
+////        listZones.add(school);
+////        listZones.add(hospital);
+////        listZones.add(currentLocation);
+//    }
 
     @Override
     protected void onStart() {
@@ -227,9 +227,9 @@ public class Home extends BaseActivity {
         int padding = 150; // offset from edges of the map in pixels
         mGoogleMap.clear();
         mEventsMarker.clear();
-        for (TempPlace places : listZones) {
-            LatLng location = new LatLng(places.latitude, places.longitude);
-            MarkerOptions markerOption = new MarkerOptions().position(location).title(places.name);
+        for (NoisePlace places : listPlaces) {
+            LatLng location = new LatLng(places.getLocation().latitude, places.getLocation().longitude);
+            MarkerOptions markerOption = new MarkerOptions().position(location).title(places.getName());
             Marker newMarker = mGoogleMap.addMarker(markerOption);
             mEventsMarker.add(newMarker);
             builder.include(newMarker.getPosition());
@@ -237,17 +237,47 @@ public class Home extends BaseActivity {
         LatLngBounds bounds = builder.build();
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mGoogleMap.animateCamera(cu, 1000, null);
-        enableRedZoneInterface();
+        enableRedZone();
+    }
+    private void updateResults(){
+        updatePlacesOnMap();
+        enableProperZone();
+        
+    }
+    private void updatePlacesOnMap(){
+        List<Marker> mEventsMarker = new ArrayList<Marker>();
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        int padding = 150; // offset from edges of the map in pixels
+        mGoogleMap.clear();
+        mEventsMarker.clear();
+        for (NoisePlace places : listPlaces) {
+            LatLng location = new LatLng(places.getLocation().latitude, places.getLocation().longitude);
+            MarkerOptions markerOption = new MarkerOptions().position(location).title(places.getName());
+            Marker newMarker = mGoogleMap.addMarker(markerOption);
+            mEventsMarker.add(newMarker);
+            builder.include(newMarker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mGoogleMap.animateCamera(cu, 1000, null);
+    }
+    private void enableProperZone() {
+       if(listPlaces.isEmpty() || mCurrentIntentsity == PlaceIntesity.NONE || mCurrentIntentsity == PlaceIntesity.NORMAL ){
+           enableGreenZone();
+       }else{
+           enableRedZone();
+       }
+        
     }
 
-    private void enableRedZoneInterface() {
+    private void enableRedZone() {
         mImgLevel.setVisibility(View.VISIBLE);
         mImgLevel.setBackgroundResource(R.drawable.anim_red);
         mAnimZone = (AnimationDrawable) mImgLevel.getBackground();
         mAnimZone.start();
     }
 
-    private void enableGreenZoneInterface() {
+    private void enableGreenZone() {
         mImgLevel.setVisibility(View.VISIBLE);
         mImgLevel.setBackgroundResource(R.drawable.anim_green);
         mAnimZone = (AnimationDrawable) mImgLevel.getBackground();
@@ -263,7 +293,7 @@ public class Home extends BaseActivity {
         mCurrentLocationMarker = new MarkerOptions().position(clickedLocation).title("Current Location");
         mGoogleMap.addMarker(mCurrentLocationMarker);
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 14.0f), 1000, null);
-        enableGreenZoneInterface();
+        enableGreenZone();
     }
 
     private ResultCallback<LocationSettingsResult> mLocationResultCallback = new ResultCallback<LocationSettingsResult>() {
@@ -305,9 +335,13 @@ public class Home extends BaseActivity {
         @Override
         public void onLocationChanged(Location changedLocation) {
             mCurrentLocation = changedLocation;
-            updateCurrentLocationOnMap();
+            Log.e("VVV","onLocationChanged");
+            requestForPlaces();
+//            updateCurrentLocationOnMap();
             stopRequestingLocationUpdates();
         }
+
+
     };
 
     private OnClickListener mOnclickListener = new OnClickListener() {
@@ -359,7 +393,46 @@ public class Home extends BaseActivity {
             default:
                 break;
         }
+    }
+    private ResultReceiver mResultReciver = new ResultReceiver(new Handler()){
+        
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if(resultCode == PlacesService.RESULT_OK){
+                onPlacesResult(resultData);
+            }else{
+                //TODO showError
+            }
+            super.onReceiveResult(resultCode, resultData);
+        }
+        
+    };
+    private void requestForPlaces() {
+        Intent intent = getPlaecsQueryIntent();
+        startService(intent);
+    }
+    private Intent getPlaecsQueryIntent() {
+        Intent intent = new Intent(Home.this,PlacesService.class);
+        intent.putExtra(PlacesService.EXTRA_RESULT_RECEIVER, mResultReciver);
+        intent.putExtra(PlacesService.EXTRA_QUERY_TYPE, PlacesService.QUERY_GET_PLACES);
+        intent.putExtra(PlacesService.EXTRA_LOCATION, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+        return intent;
+    }
 
+    private void onPlacesResult(Bundle resultData) {
+        if(resultData.containsKey(PlacesService.EXTRA_PLACES)){
+            addResultData(resultData);
+            updateResults();
+        }
+    }
+    private void addResultData(Bundle resultData) {
+        ArrayList<NoisePlace> places =   resultData.getParcelableArrayList(PlacesService.EXTRA_PLACES);
+        PlaceIntesity level = PlaceIntesity.getIntensityFromLevel(resultData.getInt(PlacesService.EXTRA_INTENSITY));
+        listPlaces.clear();
+        NoisePlace currentLocation = new NoisePlace("-1", getString(R.string.current_location), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), PlaceType.CurrentLocation.toString(), PlaceIntesity.NORMAL);
+        listPlaces.add(currentLocation);
+        listPlaces.addAll(places);
+        mCurrentIntentsity = level;
     }
 
     private void onGoogleApiEnabled(Bundle connectionHint) {
@@ -421,7 +494,6 @@ public class Home extends BaseActivity {
                 break;
             default: {
                 result = super.onOptionsItemSelected(item);
-                ;
             }
                 break;
         }

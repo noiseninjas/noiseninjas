@@ -8,7 +8,7 @@ package com.noiseninjas.android.app.engine;
  *         constants to determine Place type
  */
 public enum PlaceType {
-    School(PlacesMap.TYPE_SCHOOL), Hospital(PlacesMap.TYPE_HOSPITAL), Zoo(PlacesMap.TYPE_SCHOOL);
+    School(PlacesMap.TYPE_SCHOOL), Hospital(PlacesMap.TYPE_HOSPITAL), Zoo(PlacesMap.TYPE_SCHOOL), CurrentLocation(PlacesMap.TYPE_NONE);
 
     private final String name;
 

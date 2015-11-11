@@ -58,7 +58,7 @@ public class PlaceEngine {
         return resultIntensity;
     }
 
-    private static PlaceIntesity getMaxIntensityFromPlaces(List<NoisePlace> resultList) {
+    public static PlaceIntesity getMaxIntensityFromPlaces(List<NoisePlace> resultList) {
         PlaceIntesity resultIntensity = PlaceIntesity.NONE;
         for (NoisePlace noisePlace : resultList) {
             if (noisePlace.getIntensity().getLevel() > resultIntensity.getLevel()) {
