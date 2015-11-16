@@ -240,10 +240,16 @@ public class Home extends BaseActivity {
         enableRedZone();
     }
     private void updateResults(){
+        updateIntensityToPi();
         updatePlacesOnMap();
         enableProperZone();
         
     }
+    private void updateIntensityToPi() {
+        Intent intent = getUpdateIntensityQueryIntent();
+        startService(intent);
+    }
+
     private void updatePlacesOnMap(){
         List<Marker> mEventsMarker = new ArrayList<Marker>();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -394,15 +400,22 @@ public class Home extends BaseActivity {
                 break;
         }
     }
+    private int getQueryTypeFromResultBundle(Bundle resultData) {
+        return resultData.getInt(PlacesService.EXTRA_QUERY_TYPE, PlacesService.QUERY_NONE);
+    }
     private ResultReceiver mResultReciver = new ResultReceiver(new Handler()){
         
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if(resultCode == PlacesService.RESULT_OK){
-                onPlacesResult(resultData);
-            }else{
-                //TODO showError
+            switch (getQueryTypeFromResultBundle(resultData)) {
+                case PlacesService.QUERY_GET_PLACES:
+                    onPlacesResult(resultCode,resultData);
+                    break;
+
+                default:
+                    break;
             }
+            
             super.onReceiveResult(resultCode, resultData);
         }
         
@@ -418,12 +431,24 @@ public class Home extends BaseActivity {
         intent.putExtra(PlacesService.EXTRA_LOCATION, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
         return intent;
     }
+    private Intent getUpdateIntensityQueryIntent() {
+        Intent intent = new Intent(Home.this,PlacesService.class);
+        intent.putExtra(PlacesService.EXTRA_RESULT_RECEIVER, mResultReciver);
+        intent.putExtra(PlacesService.EXTRA_QUERY_TYPE, PlacesService.QUERY_SEND_INTENSITY);
+        intent.putExtra(PlacesService.EXTRA_INTENSITY, mCurrentIntentsity.getLevel());
+        return intent;
+    }
 
-    private void onPlacesResult(Bundle resultData) {
-        if(resultData.containsKey(PlacesService.EXTRA_PLACES)){
-            addResultData(resultData);
-            updateResults();
+    private void onPlacesResult(int resultCode, Bundle resultData) {
+        if(resultCode == PlacesService.RESULT_OK){
+            if(resultData.containsKey(PlacesService.EXTRA_PLACES)){
+                addResultData(resultData);
+                updateResults();
+            }
+        }else{
+            NinjaApp.showGenericToast(getBaseContext(), getString(R.string.places_fetch_error));//TODO showError
         }
+        
     }
     private void addResultData(Bundle resultData) {
         ArrayList<NoisePlace> places =   resultData.getParcelableArrayList(PlacesService.EXTRA_PLACES);

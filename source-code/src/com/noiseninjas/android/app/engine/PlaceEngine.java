@@ -67,5 +67,30 @@ public class PlaceEngine {
         }
         return resultIntensity;
     }
-
+    public static final String  getLevelStringForPi(PlaceIntesity intensity){
+        String result = "none";
+        switch (intensity) {
+            case HIGH:
+                result = "three";
+                break;
+            case MEDIUM:
+                result = "two";
+                break;
+            case LOW:
+                result = "one";
+                break;
+            case NORMAL:
+                result = "zero";
+                break;
+            case NONE:
+                result = "none";
+                break;
+        }
+        return result;
+    }
+    
+   public static final String getPiMessageFromIntensity(PlaceIntesity intensity){
+       String levelString = getLevelStringForPi(intensity);
+       return "pi " + "/join " + levelString ;
+   }
 }

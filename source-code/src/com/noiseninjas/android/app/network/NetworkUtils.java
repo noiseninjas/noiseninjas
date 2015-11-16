@@ -7,22 +7,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.android.gms.maps.model.LatLng;
 import com.noiseninjas.android.app.engine.EngineParams;
-import com.noiseninjas.android.app.engine.NoisePlace;
+import com.noiseninjas.android.app.engine.PlaceEngine;
 import com.noiseninjas.android.app.engine.PlaceIntesity;
-import com.noiseninjas.android.app.engine.PlacesMap;
-import com.noiseninjas.android.app.network.json.JsonHelper;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -91,5 +85,36 @@ public final class NetworkUtils {
             total.append(line);
         }
         return total.toString();
+    }
+    
+    public static boolean sendIntensityToPi(PlaceIntesity intensity) {
+        boolean result = false;
+        Socket piSocket = null;
+        try {
+            piSocket = new Socket(EngineParams.PI_IP_ADDRESS, EngineParams.PI_PORT);
+            String msg1 = "pi";
+            OutputStream out = piSocket.getOutputStream();
+            out.write(msg1.getBytes());
+            String msg2 = "/join";
+            out.write(msg2.getBytes());
+            String msg3 = PlaceEngine.getLevelStringForPi(intensity);
+            out.write(msg3.getBytes());
+            piSocket.close();
+        } catch (SocketException ex) {
+        } catch (IOException ex) {
+        } finally {
+            closeSilently(piSocket);
+        }
+        return result;
+    }
+
+    private static void closeSilently(Socket piSocket) {
+        if(piSocket!=null){
+            try {
+                piSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

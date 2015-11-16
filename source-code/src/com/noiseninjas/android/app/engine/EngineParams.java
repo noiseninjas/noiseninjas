@@ -16,6 +16,8 @@ public final class EngineParams {
      */
     
     public static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
+    public static final String PI_IP_ADDRESS = "";
+    public static final int PI_PORT = 9906;
     public static final String RESPONSE_TYPE = "json";
     public static final String PATH_SEPARATOR = "/";
     public static final String LOCATION_API = "/location";
@@ -29,6 +31,8 @@ public final class EngineParams {
     public static final String KEY_RADIUS = "radius";
     public static final String KEY_TYPE = "type";
     public static final int RADIUS_DEFAULT = 500; // int meters
+    
+    
     
     public static final String getApiKey(){
         return "AIzaSyBQcbQbmf8C0BOmY3bvj6qBxiZ3fuc7eRg";

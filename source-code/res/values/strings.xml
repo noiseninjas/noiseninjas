@@ -11,5 +11,6 @@
     <string name="improper_query">Improper Query</string>
     <string name="no_location_input">Improper Query</string>
     <string name="current_location">Current Location</string>
-    
+    <string name="places_fetch_error">No Places found</string>
+
 </resources>
