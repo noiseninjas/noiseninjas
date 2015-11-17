@@ -64,6 +64,7 @@ public class Home extends BaseActivity {
      * 
      * }
      */
+    //
     public static final String SERVER_PLACES_API_KEY = "AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o";
     private static final int REQUEST_CHECK_LOCATION_SETTINGS = 101;
     private SupportMapFragment mMapFragment = null;
@@ -82,7 +83,9 @@ public class Home extends BaseActivity {
     private PlaceIntesity mCurrentIntentsity = PlaceIntesity.NONE;
     private LatLng mLocationBusyArea = new LatLng(28.6355662, 77.361751);
     private LatLng mLocationRemoteArea = new LatLng(23.7998507,85.4321927);
-
+    // for debugging purposes
+    private int totalResultRequests = 0 ; 
+    private int totalLocationRequests = 0 ; 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,9 +185,11 @@ public class Home extends BaseActivity {
 
     private void createLocationRequest() {
         if (mLocationRequest == null) {
+            // currently hard coded parameters are set
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(20000);
-            mLocationRequest.setFastestInterval(5000);
+            mLocationRequest.setFastestInterval(25000);
+            mLocationRequest.setSmallestDisplacement (50.0f);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
     }
@@ -341,10 +346,11 @@ public class Home extends BaseActivity {
         @Override
         public void onLocationChanged(Location changedLocation) {
             mCurrentLocation = changedLocation;
-            Log.e("VVV","onLocationChanged");
+            
+            Log.e("VVV","onLocationChanged called");
             requestForPlaces();
 //            updateCurrentLocationOnMap();
-            stopRequestingLocationUpdates();
+//            stopRequestingLocationUpdates();
         }
 
 
@@ -421,6 +427,8 @@ public class Home extends BaseActivity {
         
     };
     private void requestForPlaces() {
+        totalResultRequests++;
+        Log.e("VVV", "Total Requests = " + totalResultRequests);
         Intent intent = getPlaecsQueryIntent();
         startService(intent);
     }

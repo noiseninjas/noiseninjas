@@ -46,6 +46,7 @@ public class PlacesService extends IntentService {
             case QUERY_GET_PLACES: {
                 result = onQueryPlaces(queryIntent);
             }
+            break;
             case QUERY_SEND_INTENSITY: {
                 result = onQuerySendIntensity(queryIntent);
             }
@@ -94,7 +95,8 @@ public class PlacesService extends IntentService {
             PlaceIntesity intensity = PlaceIntesity.getIntensityFromLevel(level);
             resultBundle = new Bundle();
             resultBundle.putInt(EXTRA_RESULT, RESULT_OK);
-            resultBundle.putBoolean(EXTRA_UPDATE_INTENSITY_RESULT, NetworkUtils.sendIntensityToPi(intensity));
+            String myIpAddress = NetworkUtils.getWiFiIpAddress(getBaseContext());
+            resultBundle.putBoolean(EXTRA_UPDATE_INTENSITY_RESULT, NetworkUtils.sendIntensityToPi(myIpAddress,intensity));
         } else {
             resultBundle = onQueryImproper(queryIntent, getBaseContext().getString(R.string.no_location_input));
         }

@@ -12,11 +12,11 @@ import com.google.android.gms.maps.model.LatLng;
 public final class EngineParams {
     
     /*
-     https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyBdv_q1hNke5sf-z-RoI5OjiWZbwZbqX8o&location=28.6355662,77.361751&radius=500&type=school|hospital|cemetry|mosque|hindu_temple||church|university|zoo|doctor
+    https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyBQcbQbmf8C0BOmY3bvj6qBxiZ3fuc7eRg&location=28.6355662,77.361751&radius=500&type=school|hospital|cemetry|mosque|hindu_temple||church|university|zoo|doctor
      */
     
     public static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
-    public static final String PI_IP_ADDRESS = "";
+    public static final String PI_IP_ADDRESS = "129.170.212.186";
     public static final int PI_PORT = 9906;
     public static final String RESPONSE_TYPE = "json";
     public static final String PATH_SEPARATOR = "/";

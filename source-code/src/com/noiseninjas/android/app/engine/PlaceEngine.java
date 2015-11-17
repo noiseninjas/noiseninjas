@@ -68,7 +68,7 @@ public class PlaceEngine {
         return resultIntensity;
     }
     public static final String  getLevelStringForPi(PlaceIntesity intensity){
-        String result = "none";
+        String result = "zero";
         switch (intensity) {
             case HIGH:
                 result = "three";
@@ -83,7 +83,7 @@ public class PlaceEngine {
                 result = "zero";
                 break;
             case NONE:
-                result = "none";
+                result = "zero";
                 break;
         }
         return result;

@@ -4,12 +4,14 @@
 package com.noiseninjas.android.app.network;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
@@ -18,9 +20,13 @@ import com.noiseninjas.android.app.engine.EngineParams;
 import com.noiseninjas.android.app.engine.PlaceEngine;
 import com.noiseninjas.android.app.engine.PlaceIntesity;
 
+import android.app.VoiceInteractor.PickOptionRequest;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
+import android.text.format.Formatter;
+import android.util.Log;
 
 /**
  * @author vishal.gaurav@hotmail.com
@@ -87,34 +93,62 @@ public final class NetworkUtils {
         return total.toString();
     }
     
-    public static boolean sendIntensityToPi(PlaceIntesity intensity) {
+    public static String getWiFiIpAddress(Context context){
+        WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+        return ip;
+    }
+    public static boolean sendIntensityToPi(String ipAddress,PlaceIntesity intensity) {
         boolean result = false;
         Socket piSocket = null;
+        OutputStream out = null;
+        
         try {
+
             piSocket = new Socket(EngineParams.PI_IP_ADDRESS, EngineParams.PI_PORT);
-            String msg1 = "pi";
-            OutputStream out = piSocket.getOutputStream();
+            piSocket.setTcpNoDelay(true);
+            String id =  "-pi";
+            String msg1 = id;
+            out = piSocket.getOutputStream();
             out.write(msg1.getBytes());
-            String msg2 = "/join";
+            out.flush();
+            closeSilently(piSocket, out);
+            Log.e("VVV", "pisocket data sent out = " + msg1);
+            piSocket = new Socket(EngineParams.PI_IP_ADDRESS, EngineParams.PI_PORT);
+            piSocket.setTcpNoDelay(true);
+            String msg2 = "/join" + id;
             out.write(msg2.getBytes());
-            String msg3 = PlaceEngine.getLevelStringForPi(intensity);
+            out.flush();
+            Log.e("VVV", "pisocket data sent join = " + msg2);
+            closeSilently(piSocket, out);
+            String msg3 = PlaceEngine.getLevelStringForPi(intensity) + id;
             out.write(msg3.getBytes());
-            piSocket.close();
+            out.flush();
+            Log.e("VVV", "pisocket data sent intensity = " + msg3);
         } catch (SocketException ex) {
+            Log.e("VVV", "error in sending pi  = " + ex.getMessage());
         } catch (IOException ex) {
+            Log.e("VVV", "error in sending pi  = " + ex.getMessage());
         } finally {
-            closeSilently(piSocket);
+            closeSilently(piSocket,out);
         }
         return result;
     }
 
-    private static void closeSilently(Socket piSocket) {
-        if(piSocket!=null){
+    private static void closeSilently(Socket piSocket, OutputStream out) {
+        
             try {
-                piSocket.close();
+                if(piSocket!=null){
+                    piSocket.close();
+                    piSocket.shutdownOutput();
+                }
+                if(out!=null){
+                    out.flush();
+                    out.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        
     }
 }
