@@ -12,5 +12,19 @@
     <string name="no_location_input">Improper Query</string>
     <string name="current_location">Current Location</string>
     <string name="places_fetch_error">No Places found</string>
-
+    <string name="enter_place_title">Enter Place Title</string>
+    <string name="enter_short_message">Enter Short Message</string>
+    <string name="enter_radius">Enter Radius</string>
+    <string name="default_radius">500</string>
+    <string name="meters">mts</string>
+    <string name="no_address_found">Sorry, no address found</string>
+    <string name="improper_geocoder_query">Improper geocoder query</string>
+    <string name="loading_address">Loading Address</string>
+    <string name="add_place">Add Place</string>
+    <string name="failure">Failure</string>
+    <string name="invalid_lat_lng">Invalid latitude or longitude used</string>
+    <string name="no_geocoder">No geocoder available</string>
+    <string name="no_location_data">No location data provided</string>
+    <string name="error_enter_data">Enter Value</string>
+    
 </resources>

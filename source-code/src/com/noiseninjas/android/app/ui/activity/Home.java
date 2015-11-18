@@ -129,6 +129,7 @@ public class Home extends BaseActivity {
         mImgLevel.setVisibility(View.INVISIBLE);
         findViewById(R.id.txtRed).setOnClickListener(mOnclickListener);
         findViewById(R.id.txtGreen).setOnClickListener(mOnclickListener);
+        findViewById(R.id.txtAddPlace).setOnClickListener(mOnclickListener);
 
         initActionBar();
     }
@@ -368,13 +369,24 @@ public class Home extends BaseActivity {
                 case R.id.txtRed :{
                     updateRedZoneOnMap();
                 }
+                break;
+                case R.id.txtAddPlace :{
+                    onClickUpdatePlace();
+                }
                 break ;
                 default:
                     break;
             }
         }
     };
-
+    private void onClickUpdatePlace() {
+        if(mCurrentLocation != null){
+            AddPlaceActivity.launchAddPlace(getBaseContext(), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+        }else{
+            NinjaApp.showGenericToast(getBaseContext(), getString(R.string.no_location_data));
+        }
+        
+    }
     private void onGoogleApiDisabled() {
         isGoogleApiConnected = false;
     }

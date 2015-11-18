@@ -37,9 +37,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+   <activity
+            android:name="com.noiseninjas.android.app.ui.activity.AddPlaceActivity"
+            android:label="@string/title_activity_home"
+            android:theme="@style/Activity.Home" >
+        </activity>
+        
         <service
             android:name=".service.PlacesService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".service.GeoCoderIntentService"
             android:exported="false" >
         </service>
     </application>

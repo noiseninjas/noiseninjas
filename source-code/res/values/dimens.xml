@@ -3,5 +3,12 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-
-</resources>
+    <dimen name="padding_add_place_container">5dp</dimen>
+    <dimen name="padding_add_place_done">8dp</dimen>
+    <dimen name="margin_add_place_text_top">5dp</dimen>
+    <dimen name="margin_add_place_text_bottom">5dp</dimen>
+    <dimen name="margin_left_add_place_enter_radius_left">10dp</dimen>
+    <dimen name="margin_add_place_address_bottom">15dp</dimen>
+    <dimen name="margin_places_list_text_top">5dp</dimen>
+    <dimen name="padding_addplace_geo_container">5dp</dimen>
+</resources>

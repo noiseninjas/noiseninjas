@@ -35,14 +35,25 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txtRed"
+            android:id="@+id/txtAddPlace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:gravity="center"
             android:padding="5dp"
-            android:text="Red Zone"
+            android:text="Add"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/txtRed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/txtAddPlace"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Red"
             android:textSize="14dp" />
 
         <TextView
@@ -53,7 +64,7 @@
             android:layout_toLeftOf="@id/txtRed"
             android:gravity="center"
             android:padding="5dp"
-            android:text="Green Zone"
+            android:text="Green"
             android:textSize="14dp" />
     </RelativeLayout>
 

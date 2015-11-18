@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="9" >
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/toolbar" />
+
+    <RelativeLayout
+        android:id="@+id/rlAddPlaceContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:padding="@dimen/padding_add_place_container" >
+
+        <EditText
+            android:id="@+id/edtTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/margin_add_place_text_bottom"
+            android:layout_marginTop="@dimen/margin_add_place_text_top"
+            android:hint="@string/enter_place_title"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <EditText
+            android:id="@+id/edtMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/edtTitle"
+            android:layout_marginBottom="@dimen/margin_add_place_text_bottom"
+            android:hint="@string/enter_short_message"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLines="3"
+            android:minLines="3" />
+
+        <RelativeLayout
+            android:id="@+id/rlGeofenceContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/edtMessage" >
+
+            <EditText
+                android:id="@+id/edtRadius"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/margin_left_add_place_enter_radius_left"
+                android:layout_toLeftOf="@+id/txtMeters"
+                android:gravity="center"
+                android:hint="@string/enter_place_title"
+                android:imeOptions="actionDone"
+                android:inputType="numberSigned"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="@string/default_radius"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
+            <TextView
+                android:id="@+id/txtMeters"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/margin_left_add_place_enter_radius_left"
+                android:gravity="center"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="@string/meters"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small" />
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/txtAddress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/btnDone"
+            android:layout_below="@id/rlGeofenceContainer"
+            android:layout_marginBottom="@dimen/margin_add_place_address_bottom"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="3"
+            android:text="@string/loading_address"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btnDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:padding="@dimen/padding_add_place_done"
+            android:text="@string/add_place" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/flMapContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4" >
+    </FrameLayout>
+
+</LinearLayout>
