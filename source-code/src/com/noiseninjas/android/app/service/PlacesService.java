@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 public class PlacesService extends IntentService {
     public static final String TAG = "PlaceService";
@@ -41,13 +42,17 @@ public class PlacesService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent queryIntent) {
+        Log.e("VVV", "onHandleIntent  Called :");
         Bundle result = null;
         switch (getQueryTypeFromIntent(queryIntent)) {
             case QUERY_GET_PLACES: {
+                Log.e("VVV", "QUERY_GET_PLACES :");
                 result = onQueryPlaces(queryIntent);
             }
             break;
             case QUERY_SEND_INTENSITY: {
+                Log.e("VVV", "QUERY_SEND_INTENSITY :");
+
                 result = onQuerySendIntensity(queryIntent);
             }
                 break;
@@ -57,13 +62,15 @@ public class PlacesService extends IntentService {
                 break;
         }
         deliverResultToReceiver(queryIntent, result);
-
+        Log.e("VVV", "onHandleIntent ended :");
     }
 
     private void deliverResultToReceiver(Intent queryIntent, Bundle bundle) {
         updateBundleFromIntent(queryIntent, bundle);
         ResultReceiver resultReceiver = getResultReceiverFromIntent(queryIntent);
+        Log.e("VVV", "deliverResultToReceiver ");
         if (resultReceiver != null) {
+            Log.e("VVV", "deliverResultToReceiver not null :");
             resultReceiver.send(bundle.getInt(EXTRA_RESULT), bundle);
         }
     }
@@ -120,19 +127,6 @@ public class PlacesService extends IntentService {
        resultBundle.putInt(EXTRA_QUERY_TYPE, getQueryTypeFromIntent(intent));
        resultBundle.putInt(EXTRA_QUERY_TAG, getQueryTagFromIntent(intent));
     }
-
-    @Override
-    public void onCreate() {
-        // TODO Auto-generated method stub
-        super.onCreate();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO Auto-generated method stub
-        return super.onStartCommand(intent, flags, startId);
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         // TODO Auto-generated method stub

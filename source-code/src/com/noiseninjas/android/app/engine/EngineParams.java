@@ -3,7 +3,17 @@
  */
 package com.noiseninjas.android.app.engine;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import com.google.android.gms.maps.model.LatLng;
+
+import android.os.Environment;
+import android.util.Log;
 
 /**
  * @author visha
@@ -16,7 +26,7 @@ public final class EngineParams {
      */
     
     public static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
-    public static final String PI_IP_ADDRESS = "129.170.212.186";
+    public static final String PI_IP_ADDRESS = "192.168.43.212";
     public static final int PI_PORT = 9906;
     public static final String RESPONSE_TYPE = "json";
     public static final String PATH_SEPARATOR = "/";
@@ -47,5 +57,23 @@ public final class EngineParams {
                 KEY_LOCATION + EQUAL + location.latitude + COMMA + location.longitude + AND +
                 KEY_RADIUS + EQUAL + radius + AND +
                 KEY_TYPE + EQUAL + PlacesMap.getAllPlacesTypeString();
+    }
+    public static String getIpAddressFromFile() throws FileNotFoundException,IOException{
+       String result = PI_IP_ADDRESS;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/ip.txt")));
+            result =  br.readLine();
+            Log.e("VVV", "ip address found from file = " + result);
+            br.close();
+        }
+        
+        catch (FileNotFoundException e) {
+           e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result.isEmpty() ? PI_IP_ADDRESS : result;
     }
 }

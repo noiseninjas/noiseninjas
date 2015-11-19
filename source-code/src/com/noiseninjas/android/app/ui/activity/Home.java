@@ -69,7 +69,8 @@ public class Home extends BaseActivity {
     private static final int REQUEST_CHECK_LOCATION_SETTINGS = 101;
     private SupportMapFragment mMapFragment = null;
     private GoogleMap mGoogleMap = null;
-    private Location mCurrentLocation = null;
+    private LatLng mCurrentLocation = null;
+    
     private MarkerOptions mCurrentLocationMarker = null;
     private GoogleApiClient mGoogleApiClient = null;
     private LocationRequest mLocationRequest = null;
@@ -121,7 +122,11 @@ public class Home extends BaseActivity {
         mGoogleApiClient.disconnect();
         super.onStop();
     }
-
+    @Override
+    protected void onDestroy() {
+       mResultReciver = null;
+        super.onStop();
+    }
     private void initViews() {
         setupMapViews();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -194,7 +199,9 @@ public class Home extends BaseActivity {
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
     }
-
+    private LatLng getLatLngFromLocation(Location location){
+       return (location!=null) ? new LatLng(location.getLatitude(), location.getLongitude()) : null ;
+    }
     private void checkLocationServiceEnabled() {
         createLocationRequest();
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest).setAlwaysShow(true);
@@ -204,7 +211,8 @@ public class Home extends BaseActivity {
 
     private void startRequestingLocationUpdates() {
         isRequestingLocationUpdates = true;
-        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        mCurrentLocation = getLatLngFromLocation(location);
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, mLocationListener);
         NinjaApp.showGenericToast(getBaseContext(), getString(R.string.waiting_for_location));
         updateCurrentLocationOnMap();
@@ -219,32 +227,31 @@ public class Home extends BaseActivity {
 
     private void updateCurrentLocationOnMap() {
         if (mCurrentLocation != null) {
-            LatLng clickedLocation = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
             mGoogleMap.clear();
-            mCurrentLocationMarker = new MarkerOptions().position(clickedLocation).title("Current Location");
+            mCurrentLocationMarker = new MarkerOptions().position(mCurrentLocation).title("Current Location");
             mGoogleMap.addMarker(mCurrentLocationMarker);
-            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 14.0f), 1000, null);
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mCurrentLocation, 14.0f), 1000, null);
         }
     }
 
-    private void updateRedZoneOnMap() {
-        List<Marker> mEventsMarker = new ArrayList<Marker>();
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        int padding = 150; // offset from edges of the map in pixels
-        mGoogleMap.clear();
-        mEventsMarker.clear();
-        for (NoisePlace places : listPlaces) {
-            LatLng location = new LatLng(places.getLocation().latitude, places.getLocation().longitude);
-            MarkerOptions markerOption = new MarkerOptions().position(location).title(places.getName());
-            Marker newMarker = mGoogleMap.addMarker(markerOption);
-            mEventsMarker.add(newMarker);
-            builder.include(newMarker.getPosition());
-        }
-        LatLngBounds bounds = builder.build();
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-        mGoogleMap.animateCamera(cu, 1000, null);
-        enableRedZone();
-    }
+//    private void updateRedZoneOnMap() {
+//        List<Marker> mEventsMarker = new ArrayList<Marker>();
+//        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+//        int padding = 150; // offset from edges of the map in pixels
+//        mGoogleMap.clear();
+//        mEventsMarker.clear();
+//        for (NoisePlace places : listPlaces) {
+//            LatLng location = new LatLng(places.getLocation().latitude, places.getLocation().longitude);
+//            MarkerOptions markerOption = new MarkerOptions().position(location).title(places.getName());
+//            Marker newMarker = mGoogleMap.addMarker(markerOption);
+//            mEventsMarker.add(newMarker);
+//            builder.include(newMarker.getPosition());
+//        }
+//        LatLngBounds bounds = builder.build();
+//        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+//        mGoogleMap.animateCamera(cu, 1000, null);
+//        enableRedZone();
+//    }
     private void updateResults(){
         updateIntensityToPi();
         updatePlacesOnMap();
@@ -297,16 +304,23 @@ public class Home extends BaseActivity {
     }
 
     private void updateGreenZoneOnMap() {
-        List<Marker> mEventsMarker = new ArrayList<Marker>();
-        mGoogleMap.clear();
-        mEventsMarker.clear();
-        LatLng clickedLocation = new LatLng(mLocationRemoteArea.latitude, mLocationRemoteArea.longitude);
-        mGoogleMap.clear();
-        mCurrentLocationMarker = new MarkerOptions().position(clickedLocation).title("Current Location");
-        mGoogleMap.addMarker(mCurrentLocationMarker);
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 14.0f), 1000, null);
-        enableGreenZone();
+        onLocationParsed(new LatLng(23.7998288,85.4609191)); // simulate hard code
     }
+    private void updateRedZoneOnMap(){
+        onLocationParsed(new LatLng(28.6355662,77.3617510)); // simulate hard code
+    }
+//    private void updateGreenZoneOnMap() {
+//        onLocationParsed(new LatLng(85.4609191,23.7998288));
+//        List<Marker> mEventsMarker = new ArrayList<Marker>();
+//        mGoogleMap.clear();
+//        mEventsMarker.clear();
+//        LatLng clickedLocation = new LatLng(mLocationRemoteArea.latitude, mLocationRemoteArea.longitude);
+//        mGoogleMap.clear();
+//        mCurrentLocationMarker = new MarkerOptions().position(clickedLocation).title("Current Location");
+//        mGoogleMap.addMarker(mCurrentLocationMarker);
+//        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(clickedLocation, 14.0f), 1000, null);
+//        enableGreenZone();
+//    }
 
     private ResultCallback<LocationSettingsResult> mLocationResultCallback = new ResultCallback<LocationSettingsResult>() {
 
@@ -346,16 +360,22 @@ public class Home extends BaseActivity {
 
         @Override
         public void onLocationChanged(Location changedLocation) {
-            mCurrentLocation = changedLocation;
             
-            Log.e("VVV","onLocationChanged called");
-            requestForPlaces();
+            Log.e("VVV","onLocationChanged called location = " + changedLocation);
+            LatLng updatedLocation = getLatLngFromLocation(changedLocation);
+            if(updatedLocation!= null){
+                onLocationParsed(updatedLocation);
+            }
 //            updateCurrentLocationOnMap();
 //            stopRequestingLocationUpdates();
         }
-
-
     };
+
+    private void onLocationParsed(LatLng updatedLocation) {
+        Log.e("VVV","onLocationParsed called location = " + updatedLocation);
+        mCurrentLocation = updatedLocation;
+        requestForPlaces();
+    }
 
     private OnClickListener mOnclickListener = new OnClickListener() {
 
@@ -381,7 +401,7 @@ public class Home extends BaseActivity {
     };
     private void onClickUpdatePlace() {
         if(mCurrentLocation != null){
-            AddPlaceActivity.launchAddPlace(getBaseContext(), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+            AddPlaceActivity.launchAddPlace(Home.this, mCurrentLocation);
         }else{
             NinjaApp.showGenericToast(getBaseContext(), getString(R.string.no_location_data));
         }
@@ -425,6 +445,7 @@ public class Home extends BaseActivity {
         
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
+            Log.e("VVV", "onReceiveResult called ");
             switch (getQueryTypeFromResultBundle(resultData)) {
                 case PlacesService.QUERY_GET_PLACES:
                     onPlacesResult(resultCode,resultData);
@@ -433,7 +454,8 @@ public class Home extends BaseActivity {
                 default:
                     break;
             }
-            
+            Log.e("VVV", "onReceiveResult ended ");
+
             super.onReceiveResult(resultCode, resultData);
         }
         
@@ -448,7 +470,7 @@ public class Home extends BaseActivity {
         Intent intent = new Intent(Home.this,PlacesService.class);
         intent.putExtra(PlacesService.EXTRA_RESULT_RECEIVER, mResultReciver);
         intent.putExtra(PlacesService.EXTRA_QUERY_TYPE, PlacesService.QUERY_GET_PLACES);
-        intent.putExtra(PlacesService.EXTRA_LOCATION, new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+        intent.putExtra(PlacesService.EXTRA_LOCATION, mCurrentLocation);
         return intent;
     }
     private Intent getUpdateIntensityQueryIntent() {
@@ -460,6 +482,7 @@ public class Home extends BaseActivity {
     }
 
     private void onPlacesResult(int resultCode, Bundle resultData) {
+        Log.e("VVV", "onPlacesResult called ");
         if(resultCode == PlacesService.RESULT_OK){
             if(resultData.containsKey(PlacesService.EXTRA_PLACES)){
                 addResultData(resultData);
@@ -468,13 +491,13 @@ public class Home extends BaseActivity {
         }else{
             NinjaApp.showGenericToast(getBaseContext(), getString(R.string.places_fetch_error));//TODO showError
         }
-        
+        Log.e("VVV", "onPlacesResult ended ");
     }
     private void addResultData(Bundle resultData) {
         ArrayList<NoisePlace> places =   resultData.getParcelableArrayList(PlacesService.EXTRA_PLACES);
         PlaceIntesity level = PlaceIntesity.getIntensityFromLevel(resultData.getInt(PlacesService.EXTRA_INTENSITY));
         listPlaces.clear();
-        NoisePlace currentLocation = new NoisePlace("-1", getString(R.string.current_location), new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), PlaceType.CurrentLocation.toString(), PlaceIntesity.NORMAL);
+        NoisePlace currentLocation = new NoisePlace("-1", getString(R.string.current_location), mCurrentLocation, PlaceType.CurrentLocation.toString(), PlaceIntesity.NORMAL);
         listPlaces.add(currentLocation);
         listPlaces.addAll(places);
         mCurrentIntentsity = level;

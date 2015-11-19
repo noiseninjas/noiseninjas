@@ -19,6 +19,7 @@ import com.noiseninjas.android.app.R;
 import com.noiseninjas.android.app.globals.NinjaApp;
 import com.noiseninjas.android.app.service.GeoCoderIntentService;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -358,7 +359,7 @@ public class AddPlaceActivity extends BaseActivity {
 
     }
 
-    public static void launchAddPlace(Context context, LatLng mCurrentLocation) {
+    public static void launchAddPlace(Activity context, LatLng mCurrentLocation) {
         Intent addPlaceIntent = new Intent(context, AddPlaceActivity.class);
         addPlaceIntent.putExtra(AddPlaceActivity.EXTRA_LAT_LNG, mCurrentLocation);
         context.startActivity(addPlaceIntent);
