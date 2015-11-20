@@ -83,7 +83,7 @@ public class Home extends BaseActivity {
     private ArrayList<NoisePlace> listPlaces = new ArrayList<NoisePlace>();
     private PlaceIntesity mCurrentIntentsity = PlaceIntesity.NONE;
     private LatLng mLocationBusyArea = new LatLng(28.6355662, 77.361751);
-    private LatLng mLocationRemoteArea = new LatLng(23.7998507,85.4321927);
+    private LatLng mLocationRemoteArea = new LatLng(23.7998288,85.4609191);
     // for debugging purposes
     private int totalResultRequests = 0 ; 
     private int totalLocationRequests = 0 ; 
@@ -279,6 +279,10 @@ public class Home extends BaseActivity {
         LatLngBounds bounds = builder.build();
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mGoogleMap.animateCamera(cu, 1000, null);
+        if(listPlaces.size() <= 1 ){
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(listPlaces.get(0).getLocation(),10.0f),1000,null);
+            Log.v("VVV", "manual zoomed in 10.0 f ");
+        }
     }
     private void enableProperZone() {
        if(listPlaces.isEmpty() || mCurrentIntentsity == PlaceIntesity.NONE || mCurrentIntentsity == PlaceIntesity.NORMAL ){
@@ -304,10 +308,10 @@ public class Home extends BaseActivity {
     }
 
     private void updateGreenZoneOnMap() {
-        onLocationParsed(new LatLng(23.7998288,85.4609191)); // simulate hard code
+        onLocationParsed(mLocationRemoteArea); // simulate hard code
     }
     private void updateRedZoneOnMap(){
-        onLocationParsed(new LatLng(28.6355662,77.3617510)); // simulate hard code
+        onLocationParsed(mLocationBusyArea); // simulate hard code
     }
 //    private void updateGreenZoneOnMap() {
 //        onLocationParsed(new LatLng(85.4609191,23.7998288));
