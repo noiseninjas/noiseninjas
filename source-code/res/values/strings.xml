@@ -27,4 +27,7 @@
     <string name="no_location_data">No location data provided</string>
     <string name="error_enter_data">Enter Value</string>
     <string name="title_add_place">Tag a No Noise Zone</string>
+    <string name="test_mode_already">Already running a test m</string>
+    <string name="ok">Ok</string>
+
 </resources>

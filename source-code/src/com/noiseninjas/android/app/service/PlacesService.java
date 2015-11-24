@@ -24,8 +24,10 @@ public class PlacesService extends IntentService {
     public static final int QUERY_GET_PLACES = 1;
     public static final int QUERY_SEND_INTENSITY = 2;
     public static final int QUERY_NONE = 0;
+    public static final int REQUEST_ID_NONE = -1;
 
     public static final String EXTRA_RESULT = "result";
+    public static final String EXTRA_REQUEST_ID = "request_id";
     public static final String EXTRA_MESSAGE = "message";
     public static final String EXTRA_MAX_INTENSITY = "max_intensity";
     public static final String EXTRA_PLACES = "place_results";
@@ -52,7 +54,6 @@ public class PlacesService extends IntentService {
             break;
             case QUERY_SEND_INTENSITY: {
                 Log.e("VVV", "QUERY_SEND_INTENSITY :");
-
                 result = onQuerySendIntensity(queryIntent);
             }
                 break;
@@ -117,6 +118,9 @@ public class PlacesService extends IntentService {
 
     }
 
+    private int getRequestIdFromIntent(Intent intent) {
+        return intent.getIntExtra(EXTRA_REQUEST_ID, REQUEST_ID_NONE);
+    }
     private int getQueryTypeFromIntent(Intent intent) {
         return intent.getIntExtra(EXTRA_QUERY_TYPE, QUERY_NONE);
     }
@@ -124,8 +128,10 @@ public class PlacesService extends IntentService {
         return intent.getIntExtra(EXTRA_QUERY_TAG, QUERY_NONE);
     }
     private void updateBundleFromIntent(Intent intent,Bundle resultBundle) {
+        
        resultBundle.putInt(EXTRA_QUERY_TYPE, getQueryTypeFromIntent(intent));
        resultBundle.putInt(EXTRA_QUERY_TAG, getQueryTagFromIntent(intent));
+       resultBundle.putInt(EXTRA_REQUEST_ID, getRequestIdFromIntent(intent));
     }
     @Override
     public IBinder onBind(Intent intent) {

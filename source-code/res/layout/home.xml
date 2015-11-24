@@ -49,8 +49,8 @@
             android:id="@+id/txtRed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/txtAddPlace"
             android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/txtAddPlace"
             android:gravity="center"
             android:padding="5dp"
             android:text="Red"
@@ -66,6 +66,17 @@
             android:padding="5dp"
             android:text="Green"
             android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/txtTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/txtGreen"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Test"
+            android:textSize="14dp" />
     </RelativeLayout>
 
     <FrameLayout
@@ -74,6 +85,60 @@
         android:layout_height="match_parent"
         android:layout_below="@id/rlAction" >
     </FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/rlTestOverLay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rlAction"
+        android:background="#40ccffcc"
+        android:visibility="visible" >
+
+        <TextView
+            android:id="@+id/txtTestTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Running in Test Mode"
+            android:textStyle="bold|italic" />
+
+        <TextView
+            android:id="@+id/txtTestInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtTestTitle"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="Current Test Info"
+            android:textStyle="bold|italic" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/txtTestLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="lat, longi"
+                android:textStyle="bold|italic" />
+
+            <TextView
+                android:id="@+id/txtTestStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="lat, longi"
+                android:textStyle="bold|italic" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <FrameLayout
         android:layout_width="wrap_content"

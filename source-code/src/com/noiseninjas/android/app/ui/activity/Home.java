@@ -35,6 +35,9 @@ import com.noiseninjas.android.app.engine.PlaceIntesity;
 import com.noiseninjas.android.app.engine.PlaceType;
 import com.noiseninjas.android.app.globals.NinjaApp;
 import com.noiseninjas.android.app.service.PlacesService;
+import com.noiseninjas.android.app.tests.TestGenerator;
+import com.noiseninjas.android.app.tests.TestGenerator.OnTestGeneratedListener;
+import com.noiseninjas.android.app.tests.TestPlace;
 
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
@@ -43,6 +46,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.ResultReceiver;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
@@ -51,7 +55,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class Home extends BaseActivity {
     /*
@@ -87,6 +93,34 @@ public class Home extends BaseActivity {
     // for debugging purposes
     private int totalResultRequests = 0 ; 
     private int totalLocationRequests = 0 ; 
+    /* variables for test mode */
+    private boolean isTestModeOn = false;
+    private TestPlace mCurrentTestPlace = null;
+    private int totalTestsDone = 0 ;
+    private int totalPassed = 0 ;
+    private TestGenerator testEngine = null;
+    private View rlTestOverLay = null; 
+    private Handler mTestHandler = new Handler(){
+
+        @Override
+        public void handleMessage(Message msg) {
+            checkNextTestOrStop();
+            super.handleMessage(msg);
+        }
+        
+    };
+    private OnTestGeneratedListener mTestListener = new OnTestGeneratedListener() {
+        
+        @Override
+        public void onTestGenerated(int totalTestCaseFiles) {
+            startRunningTests();          
+        }
+        @Override
+        public void onTestGenerateError() {            
+        }
+    };
+    /* variables for test mode */
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,16 +166,25 @@ public class Home extends BaseActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mImgLevel = (ImageView) findViewById(R.id.imgLevel);
         mImgLevel.setVisibility(View.INVISIBLE);
+        rlTestOverLay = findViewById(R.id.rlTestOverLay);
         findViewById(R.id.txtRed).setOnClickListener(mOnclickListener);
         findViewById(R.id.txtGreen).setOnClickListener(mOnclickListener);
         findViewById(R.id.txtAddPlace).setOnClickListener(mOnclickListener);
-
+        findViewById(R.id.txtTest).setOnClickListener(mOnclickListener);
         initActionBar();
+        initTestUi();
+    }
+
+    private void initTestUi() {
+        if(isTestModeOn){
+            rlTestOverLay.setVisibility(View.VISIBLE);
+        }else{
+            rlTestOverLay.setVisibility(View.GONE);
+        }
     }
 
     private void initActionBar() {
         setUpToolbar();
-
     }
 
     private void setUpToolbar() {
@@ -397,19 +440,110 @@ public class Home extends BaseActivity {
                 case R.id.txtAddPlace :{
                     onClickUpdatePlace();
                 }
+                break;
+                case R.id.txtTest :{
+                    onClickStartTest();
+                }
                 break ;
                 default:
                     break;
             }
         }
     };
+
+    private void onClickStartTest() {
+        if(!isTestModeOn){
+            initiateTestMode();
+        }else{
+            NinjaApp.showGenericToast(getBaseContext(), getString(R.string.test_mode_already));
+        }
+    }
+    private void initiateTestMode() {
+        isTestModeOn = true;
+        stopRequestingLocationUpdates();
+        enableTestModeUI();
+        testEngine = new TestGenerator(mTestListener);
+        testEngine.generateTests(); // assuming its in new thread 
+    }
+    private void startRunningTests() {
+        enableTestModeUI();
+        nextTest();
+    }
+    private void nextTest() {
+        Log.e("VVV", "nextTest");
+        mTestHandler.sendEmptyMessageDelayed(0, 1000);
+    }
+
+    private void checkNextTestOrStop() {
+        if(goToNextTestCase()){
+            updateTestUI();
+        }else{
+            showTestResultDialog();
+            stopRunningTests();
+        }
+        
+    }
+
+    private void showTestResultDialog() {
+        StringBuilder resultString = new StringBuilder();
+        resultString.append("testPassed/totalTests = " + totalPassed + "/" + totalTestsDone); 
+        resultString.append("\n");
+        resultString.append("Pass Percentage = " + ((totalPassed/totalTestsDone)*100 ) + "%");
+        showAlertDialog("Test Results",resultString.toString(), true);
+    }
+
+    private void updateTestUI() {
+        ((TextView)findViewById(R.id.txtTestInfo)).setText("Current Test Id : - " + mCurrentTestPlace.testId + "\n" + "Test file : - " + mCurrentTestPlace.testFile  );
+        ((TextView)findViewById(R.id.txtTestLocation)).setText("testing coordinate, lat = " + mCurrentTestPlace.mTestLocation.latitude + ", " + "lng = " + mCurrentTestPlace.mTestLocation.longitude );
+        ((TextView)findViewById(R.id.txtTestStats)).setText("testPassed/totalTests = " + totalPassed + "/" + totalTestsDone );
+        
+    }
+
+    private boolean goToNextTestCase() {
+        boolean result = false;
+        if(testEngine.isNextTestExists()){
+            mCurrentTestPlace = testEngine.getNextTest();
+            if(mCurrentTestPlace!=null){
+                result = true;
+                totalTestsDone++;
+                onLocationParsed(mCurrentTestPlace.mTestLocation);
+            }
+        }
+        return result;
+    }
+
+    private void enableTestModeUI() {
+        rlTestOverLay.setVisibility(View.VISIBLE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+    private void disableTestModeUI() {
+        rlTestOverLay.setVisibility(View.GONE);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
+    }
+    private void stopRunningTests(){
+        if(testEngine!=null){
+            testEngine.stopEngine();
+        }
+        isTestModeOn = false;
+        resetTestData();
+        disableTestModeUI();
+    }
+
+
+    private void resetTestData() {
+        mCurrentTestPlace = null;
+        totalTestsDone = 0 ;
+        totalPassed = 0 ;
+        testEngine = null;
+    }
+
     private void onClickUpdatePlace() {
         if(mCurrentLocation != null){
             AddPlaceActivity.launchAddPlace(Home.this, mCurrentLocation);
         }else{
             NinjaApp.showGenericToast(getBaseContext(), getString(R.string.no_location_data));
         }
-        
     }
     private void onGoogleApiDisabled() {
         isGoogleApiConnected = false;
@@ -475,6 +609,9 @@ public class Home extends BaseActivity {
         intent.putExtra(PlacesService.EXTRA_RESULT_RECEIVER, mResultReciver);
         intent.putExtra(PlacesService.EXTRA_QUERY_TYPE, PlacesService.QUERY_GET_PLACES);
         intent.putExtra(PlacesService.EXTRA_LOCATION, mCurrentLocation);
+        if(isTestModeOn){
+            intent.putExtra(PlacesService.EXTRA_REQUEST_ID,mCurrentTestPlace.testId); 
+        }
         return intent;
     }
     private Intent getUpdateIntensityQueryIntent() {
@@ -491,12 +628,32 @@ public class Home extends BaseActivity {
             if(resultData.containsKey(PlacesService.EXTRA_PLACES)){
                 addResultData(resultData);
                 updateResults();
+                checkAndUpdateTests(resultData);
             }
         }else{
             NinjaApp.showGenericToast(getBaseContext(), getString(R.string.places_fetch_error));//TODO showError
         }
         Log.e("VVV", "onPlacesResult ended ");
     }
+    private void checkAndUpdateTests(Bundle resultData) {
+        if(isTestModeOn){
+            updateTestData(resultData);
+        }
+        
+    }
+
+    private void updateTestData(Bundle resultData) {
+        int testCaseId = resultData.getInt(PlacesService.EXTRA_REQUEST_ID);
+        if(mCurrentTestPlace != null && testCaseId == mCurrentTestPlace.testId && testEngine!= null){
+            mCurrentTestPlace.isTestPassed = (mCurrentTestPlace.expectedValue == 1) ? 
+                    (mCurrentIntentsity.getLevel() > PlaceIntesity.NORMAL.getLevel()) :  (mCurrentIntentsity.getLevel() < PlaceIntesity.LOW.getLevel()) ;
+           if(mCurrentTestPlace.isTestPassed){
+               totalPassed++;
+           }
+        }
+        nextTest();
+    }
+
     private void addResultData(Bundle resultData) {
         ArrayList<NoisePlace> places =   resultData.getParcelableArrayList(PlacesService.EXTRA_PLACES);
         PlaceIntesity level = PlaceIntesity.getIntensityFromLevel(resultData.getInt(PlacesService.EXTRA_INTENSITY));

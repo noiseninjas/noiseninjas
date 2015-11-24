@@ -84,7 +84,7 @@ public final class NetworkUtils {
         }
     }
 
-    private static String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+    public static String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
         BufferedReader r = new BufferedReader(new InputStreamReader(stream));
         StringBuilder total = new StringBuilder();
         String line;

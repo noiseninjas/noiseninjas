@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.noiseninjas.android.app.engine.NoisePlace;
 import com.noiseninjas.android.app.engine.PlaceIntesity;
 import com.noiseninjas.android.app.engine.PlacesMap;
+import com.noiseninjas.android.app.tests.TestPlace;
 
 /**
  * @author vishal gaurav
@@ -67,11 +68,11 @@ public final class JsonHelper {
 
     private static String getMostApplicableType(JSONArray types) throws JSONException {
         int length = types.length();
-        String type = PlacesMap.TYPE_NONE ;
-        PlaceIntesity lastIntensity = PlaceIntesity.NONE ;
-        for(int count = 0 ; count < length ; count ++ ){
+        String type = PlacesMap.TYPE_NONE;
+        PlaceIntesity lastIntensity = PlaceIntesity.NONE;
+        for (int count = 0; count < length; count++) {
             String currentType = types.getString(count);
-            PlaceIntesity intensity  = PlacesMap.getPlaceType(currentType);
+            PlaceIntesity intensity = PlacesMap.getPlaceType(currentType);
             if (intensity != null) {
                 if (lastIntensity.getLevel() < intensity.getLevel()) {
                     type = currentType;
@@ -89,11 +90,27 @@ public final class JsonHelper {
 
     private static boolean isValidResponse(JSONObject resultObject) throws JSONException {
 
-        return (resultObject != null && 
-                resultObject.has(KEY_STATUS) && 
-                resultObject.has(KEY_RESULTS) && 
-                resultObject.getString(KEY_STATUS).equals(RESULT_OK)&& 
-                resultObject.getJSONArray(KEY_RESULTS).length() > 0);
+        return (resultObject != null && resultObject.has(KEY_STATUS) && resultObject.has(KEY_RESULTS) && resultObject.getString(KEY_STATUS).equals(RESULT_OK)
+                && resultObject.getJSONArray(KEY_RESULTS).length() > 0);
     }
 
+    public static List<TestPlace> parseTestPlaces(String jsonString, int fileIndex, String fileName) throws JSONException {
+        List<TestPlace> listTests = null;
+        JSONObject rootObject = new JSONObject(jsonString);
+        if (rootObject.has(TestPlace.KEY_TESTS)) {
+            JSONArray testArray = rootObject.getJSONArray(TestPlace.KEY_TESTS);
+            if (testArray != null && testArray.length() > 0) {
+                int arrayLength = testArray.length();
+                listTests = new ArrayList<TestPlace>();
+                for (int count = 0; count < arrayLength; count++) {
+                    JSONObject testObject = testArray.optJSONObject(count);
+                    if (testObject != null) {
+                        TestPlace newTest = TestPlace.getNewTest(count,fileIndex, fileName, testObject);
+                        listTests.add(newTest);
+                    }
+                }
+            }
+        }
+        return listTests;
+    }
 }
